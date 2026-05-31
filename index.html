@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BitForge is a sleek, premium, and interactive browser-based utility that converts binary strings to decimal integers and vice versa. Toggle bits visually and see real-time mathematical breakdowns.">
+    <title>BitForge // Interactive Binary Converter & Visualizer</title>
+    <!-- Google Fonts: Inter and JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background glows -->
+    <div class="radial-glow glow-1"></div>
+    <div class="radial-glow glow-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <svg class="logo-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2" />
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                    <circle cx="16" cy="8" r="1.5" fill="currentColor" />
+                    <path d="M6 14C8 16.5 10 17 12 17C14 17 16 16.5 18 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <span class="logo-text">BitForge</span>
+            </div>
+            <p class="tagline">Interactive Binary & Decimal Conversion Studio</p>
+        </header>
+
+        <main class="app-main">
+            <!-- Mode Switcher -->
+            <nav class="mode-tabs" aria-label="Tool options">
+                <button id="tab-visual" class="tab-btn active" onclick="switchTab('visual')" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+                    Visual Bit Toggler
+                </button>
+                <button id="tab-bin2dec" class="tab-btn" onclick="switchTab('bin2dec')" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                    Binary to Decimal
+                </button>
+                <button id="tab-dec2bin" class="tab-btn" onclick="switchTab('dec2bin')" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 17 14 11 20 5"></polyline><line x1="12" y1="19" x2="4" y2="19"></line></svg>
+                    Decimal to Binary
+                </button>
+            </nav>
+
+            <div class="workspace-grid">
+                <!-- Control/Input Panel -->
+                <div class="control-panel glass-card">
+                    <!-- Interactive Visual Toggler View -->
+                    <div id="view-visual" class="tool-view active">
+                        <div class="panel-header">
+                            <h2>Interactive Bit Grid</h2>
+                            <p class="panel-desc">Click individual bit boxes to toggle them between 0 and 1. Watch the decimal and binary update instantly.</p>
+                        </div>
+                        
+                        <!-- Bit width selector -->
+                        <div class="bit-width-selector">
+                            <label>Bit Width:</label>
+                            <div class="radio-group">
+                                <input type="radio" id="bits-8" name="bit-width" value="8" checked>
+                                <label for="bits-8">8-Bit (Byte)</label>
+                                <input type="radio" id="bits-16" name="bit-width" value="16">
+                                <label for="bits-16">16-Bit</label>
+                            </div>
+                        </div>
+
+                        <!-- Grid -->
+                        <div id="bit-grid" class="bit-grid-8">
+                            <!-- JS will populate these buttons dynamically -->
+                        </div>
+
+                        <div class="quick-actions">
+                            <button id="btn-clear-bits" class="btn-sec" onclick="clearBits()">Set All 0</button>
+                            <button id="btn-fill-bits" class="btn-sec" onclick="fillBits()">Set All 1</button>
+                            <button id="btn-invert-bits" class="btn-sec" onclick="invertBits()">Invert Bits</button>
+                        </div>
+                    </div>
+
+                    <!-- Binary to Decimal Form View -->
+                    <div id="view-bin2dec" class="tool-view">
+                        <div class="panel-header">
+                            <h2>Binary to Decimal</h2>
+                            <p class="panel-desc">Paste or type any binary string (only 0s and 1s allowed) to convert it to decimal format.</p>
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label for="binary-input" class="field-label">Binary String</label>
+                            <div class="input-control">
+                                <input type="text" id="binary-input" placeholder="e.g. 10110110" autocomplete="off" spellcheck="false" maxlength="32">
+                                <button class="clear-input-btn" onclick="clearInput('binary-input')" title="Clear input">×</button>
+                            </div>
+                            <span id="binary-validation" class="validation-message"></span>
+                        </div>
+
+                        <div class="preset-links">
+                            <span>Examples:</span>
+                            <button onclick="setBinaryPreset('1010')">1010</button>
+                            <button onclick="setBinaryPreset('11111111')">255 (11111111)</button>
+                            <button onclick="setBinaryPreset('101010101010')">2730</button>
+                        </div>
+                    </div>
+
+                    <!-- Decimal to Binary Form View -->
+                    <div id="view-dec2bin" class="tool-view">
+                        <div class="panel-header">
+                            <h2>Decimal to Binary</h2>
+                            <p class="panel-desc">Enter a positive decimal integer to convert it to its raw binary representation.</p>
+                        </div>
+
+                        <div class="input-wrapper">
+                            <label for="decimal-input" class="field-label">Decimal Number</label>
+                            <div class="input-control">
+                                <input type="text" id="decimal-input" placeholder="e.g. 182" autocomplete="off" spellcheck="false">
+                                <button class="clear-input-btn" onclick="clearInput('decimal-input')" title="Clear input">×</button>
+                            </div>
+                            <span id="decimal-validation" class="validation-message"></span>
+                        </div>
+
+                        <div class="preset-links">
+                            <span>Examples:</span>
+                            <button onclick="setDecimalPreset('42')">42</button>
+                            <button onclick="setDecimalPreset('256')">256</button>
+                            <button onclick="setDecimalPreset('65535')">65535</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display / Output Panel -->
+                <div class="display-panel glass-card">
+                    <div class="output-block decimal-output-block">
+                        <span class="label">Decimal Value</span>
+                        <div class="display-value">
+                            <span id="decimal-display" class="mono">0</span>
+                            <button class="copy-btn" onclick="copyText('decimal-display')" title="Copy Decimal">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="output-block binary-output-block">
+                        <span class="label">Binary String</span>
+                        <div class="display-value">
+                            <span id="binary-display" class="mono text-glow">00000000</span>
+                            <button class="copy-btn" onclick="copyText('binary-display')" title="Copy Binary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Mathematics Breakdown -->
+                    <div class="math-breakdown-card">
+                        <div class="math-header">
+                            <span class="label">Mathematical Formula</span>
+                            <button class="copy-btn-sm" onclick="copyText('math-formula-raw')" title="Copy formula text">Copy Equation</button>
+                        </div>
+                        <div class="math-formula-scroll">
+                            <div id="math-formula" class="mono"></div>
+                            <span id="math-formula-raw" class="sr-only"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Tools Section: History and Explanation -->
+            <div class="bottom-grid">
+                <!-- History Logger -->
+                <div class="history-panel glass-card">
+                    <div class="panel-section-header">
+                        <h3>Conversion History</h3>
+                        <button id="btn-clear-history" class="btn-text-danger" onclick="clearHistory()">Clear All</button>
+                    </div>
+                    <div class="history-list-wrapper">
+                        <ul id="history-list" class="history-list">
+                            <!-- Dynamic history items -->
+                            <li class="empty-history">No conversions in history yet.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Explanation / Educational Box -->
+                <div class="info-panel glass-card">
+                    <div class="panel-section-header">
+                        <h3>How Binary-to-Decimal Works</h3>
+                    </div>
+                    <div class="info-content">
+                        <p>Binary is a **base-2** numbering system where each column represents a power of 2, starting from the rightmost bit ($2^0 = 1$).</p>
+                        <p>To convert any binary number to a decimal, multiply each binary digit ($0$ or $1$) by its corresponding power of 2, then sum the results:</p>
+                        <div class="math-card">
+                            <code>Value = (d<sub>n</sub> × 2<sup>n</sup>) + ... + (d<sub>1</sub> × 2<sup>1</sup>) + (d<sub>0</sub> × 2<sup>0</sup>)</code>
+                        </div>
+                        <p>For example, the binary string <code class="inline-mono">1011</code> has bits active at positions 3, 1, and 0:</p>
+                        <div class="math-card-sm">
+                            <code>(1 × 8) + (0 × 4) + (1 × 2) + (1 × 1) = 8 + 0 + 2 + 1 = 11</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 BitForge. Crafted with pure HTML5, CSS3, &amp; JS. Open source and secure.</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
